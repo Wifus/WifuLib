@@ -5,3 +5,5 @@ function Wifu(token, options) {
 }
 
 Wifu.Command = require("./lib/structures/Command");
+
+module.exports = Wifu;
