@@ -1,6 +1,6 @@
 {
   "name": "wifu",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Discord Library",
   "main": "index.js",
   "scripts": {
