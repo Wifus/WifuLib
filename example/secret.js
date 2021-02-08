@@ -1,3 +1,5 @@
+const {Intents} = require("wifu");
+
 const TOKEN = "bot token";
 const db = {
     host: "host",
@@ -12,6 +14,12 @@ module.exports = {
     OPTIONS: {
         login: {
             db
-        }
+        },
+        intents: [
+            Intents.GUILDS, 
+            Intents.GUILD_MEMBERS, 
+            Intents.GUILD_PRESENCES,
+            Intents.GUILD_MESSAGES
+        ]
     }
 }

@@ -5,5 +5,6 @@ function Wifu(token, options) {
 }
 
 Wifu.Command = require("./lib/structures/Command");
+Wifu.Intents = require("./lib/constants").INTENTS;
 
 module.exports = Wifu;
