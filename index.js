@@ -1,7 +1,15 @@
 const Client = require("./lib/client");
 
-function Wifu(token, options) {
-    return new Client(token, options);
+class Wifu extends Client{
+    /**
+     * Init the Client
+     * @param {String} token 
+     */
+    constructor(token){
+        super(token);
+    }
 }
+
+Wifu.temp = 1;
 
 module.exports = Wifu;
