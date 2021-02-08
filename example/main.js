@@ -1,5 +1,5 @@
 const {TOKEN, OPTIONS} = require("./secret");
-const Wifu = require("../index");
+const Wifu = require("wifu");
 
 const BOT = new Wifu(TOKEN, OPTIONS);
 
