@@ -1,6 +1,6 @@
 const TOKEN = "bot token";
 const db = {
-    host: "xxx.xxx.x.xxx",
+    host: "host",
     port: 3306,
     user: "user",
     password: "password",
