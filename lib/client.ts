@@ -23,4 +23,4 @@ class Client {
     get gateway(){return this._gateway;}
 }
 
-export {Client};
+export { Client };

@@ -1,5 +1,5 @@
 import { WebSocket } from "https://deno.land/x/websocket@v0.0.6/mod.ts";
-import { OPCODES, PAYLOADS, GATEWAY} from "../constants.ts";
+import { OPCODES, PAYLOADS, GATEWAY } from "../constants.ts";
 import type { Client } from "../client.ts";
 
 class WebSocketManager {
@@ -115,4 +115,4 @@ class WebSocketManager {
     set session_id(session_id: string){this._session_id = session_id;}
 }
 
-export {WebSocketManager};
+export { WebSocketManager };
