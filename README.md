@@ -1,2 +1,2 @@
 # WifuLib
-Repo for my discord library npm package
+Repo for my discord library deno module
