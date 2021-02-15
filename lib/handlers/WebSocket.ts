@@ -49,7 +49,7 @@ class WebSocketManager {
 
         switch(op){
             case OPCODES.DISPATCH:
-                // this.client.events.handleDispatch(payload);
+                this.client.events.handleDispatch(payload);
                 break;
             case OPCODES.HEARTBEAT:
                 this.heartbeat();
