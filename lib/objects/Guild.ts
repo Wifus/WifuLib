@@ -5,73 +5,73 @@ import { Role } from "./Role.ts";
 
 class Guild extends Base{
 
-    private _name: string;
-    private _icon: string;
-    private _roles: Collection;
-    private _unavailable: boolean;
-    private _memberCount: number;
-    private _members: Collection;
+    #name: string;
+    #icon: string;
+    #roles: Collection;
+    #unavailable: boolean;
+    #memberCount: number;
+    #members: Collection;
     
     constructor(data: any){
         super(data.id);
-        this._name = data.name;
-        this._icon = data.icon;
-        this._roles = new Collection(Role);
-        this._unavailable = data.unavailable;
-        this._memberCount = data.member_count;
-        this._members = new Collection(Member);
+        this.#name = data.name;
+        this.#icon = data.icon;
+        this.#roles = new Collection(Role);
+        this.#unavailable = data.unavailable;
+        this.#memberCount = data.member_count;
+        this.#members = new Collection(Member);
 
         for(const role of data.roles){
-            this._roles.add(role);
+            this.#roles.add(role);
         }
         for(const member of data.members){
             this.addMember(member, true);
         }
         for(const presence of data.presences){
-            this._members.update(presence);
+            this.#members.update(presence);
         }
     }
 
     iconURL(size = 1024){
-        const avatar = this._icon.startsWith("a_") ? `${this._icon}.gif` : `${this._icon}.png`;
+        const avatar = this.#icon.startsWith("a_") ? `${this.#icon}.gif` : `${this.#icon}.png`;
         return `https://cdn.discordapp.com/icons/${this.id}/${avatar}?size=${size}`
     }
 
     update(data: any){
         if(data.name !== undefined) {
-            this._name = data.name;
+            this.#name = data.name;
         }
         if(data.icon !== undefined) {
-            this._icon = data.icon;
+            this.#icon = data.icon;
         }
         if(data.unavailable !== undefined) {
-            this._unavailable = data.unavailable;
+            this.#unavailable = data.unavailable;
         }
         return this;
     }
 
     addMember(data: any, ignoreCount = false){
-        const member = this._members.add({guildRoles: this._roles, ...data});
-        if(!ignoreCount) {this._memberCount = this._members.size;}
+        const member = this.#members.add({guildRoles: this.#roles, ...data});
+        if(!ignoreCount) {this.#memberCount = this.#members.size;}
         return member;
     }
 
     updateMember(data: any){
-        const member = this._members.update({guildRoles: this._roles, ...data});
+        const member = this.#members.update({guildRoles: this.#roles, ...data});
         return member;
     }
 
     removeMember(id: string){
-        const member = this._members.remove({id});
-        this._memberCount = this._members.size;
+        const member = this.#members.remove({id});
+        this.#memberCount = this.#members.size;
         return member;
     }
 
-    get name(){return this._name}
-    get roles(){return this._roles}
-    get unavailable(){return this._unavailable}
-    get memberCount(){return this._memberCount}
-    get members(){return this._members}
+    get name(){return this.#name}
+    get roles(){return this.#roles}
+    get unavailable(){return this.#unavailable}
+    get memberCount(){return this.#memberCount}
+    get members(){return this.#members}
 
 }
 

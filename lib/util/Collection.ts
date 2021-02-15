@@ -1,24 +1,24 @@
 class Collection extends Map{
     
-    private baseClass: any;
-    private primaryKey: string;
+    #baseClass: any;
+    #primaryKey: string;
 
     constructor(baseClass: any, primaryKey = "id"){
         super();
-        this.baseClass = baseClass;
-        this.primaryKey = primaryKey;
+        this.#baseClass = baseClass;
+        this.#primaryKey = primaryKey;
     }
 
     add(object: any){
-        if(!(object instanceof this.baseClass || object.constructor.name === this.baseClass.name)){
-            object = new this.baseClass(object);
+        if(!(object instanceof this.#baseClass || object.constructor.name === this.#baseClass.name)){
+            object = new this.#baseClass(object);
         }
-        this.set(object[this.primaryKey], object);
+        this.set(object[this.#primaryKey], object);
         return object;
     }
 
     update(object: any){
-        const value = this.get(object[this.primaryKey]);
+        const value = this.get(object[this.#primaryKey]);
         if(!value){
             return this.add(object);
         }
@@ -26,16 +26,16 @@ class Collection extends Map{
     }
 
     remove(object: any){
-        const value = this.get(object[this.primaryKey]);
+        const value = this.get(object[this.#primaryKey]);
         if(!value){
             return null;
         }
-        this.delete(object[this.primaryKey]);
+        this.delete(object[this.#primaryKey]);
         return value;
     }
 
     toString(){
-        return `[Collection<${this.baseClass.name}>]`;
+        return `[Collection<${this.#baseClass.name}>]`;
     }
 
 }

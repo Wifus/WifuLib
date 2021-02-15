@@ -7,17 +7,17 @@ import { Guild } from "./objects/Guild.ts";
 
 class Client {
 
-    private _token: string;
-    private _gateway: Gateway;
-    private _events: Events;
+    #token: string;
+    #gateway: Gateway;
+    #events: Events;
 
-    public guilds: Collection;
-    public users: Collection;
+    guilds: Collection;
+    users: Collection;
 
     constructor(token: string){
-        this._token = token;
-        this._gateway = new Gateway(this);
-        this._events = new Events(this);
+        this.#token = token;
+        this.#gateway = new Gateway(this);
+        this.#events = new Events(this);
 
         this.users = new Collection(User);
         this.guilds = new Collection(Guild);
@@ -35,9 +35,9 @@ class Client {
     guild(id: string): Guild {return this.guilds.get(id)}
     user(id: string): User {return this.users.get(id)}
 
-    get token(){return this._token}
-    get gateway(){return this._gateway;}
-    get events(){return this._events;}
+    get token(){return this.#token}
+    get gateway(){return this.#gateway;}
+    get events(){return this.#events;}
 
 }
 

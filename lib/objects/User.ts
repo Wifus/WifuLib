@@ -2,29 +2,25 @@ import { Base } from "../util/Base.ts";
 
 class User extends Base{
 
-    private _username: string;
-    private _discriminator: string;
-    private _avatarHash: string;
-    private _bot: boolean;
-    private _mention: string;
-    private _status: string;
+    #username: string;
+    #discriminator: string;
+    #avatarHash: string;
+    #bot: boolean;
+    #mention: string;
+    #status: string;
 
     constructor(data: any){
-        if(data.user){
-            super(data.user.id);
-        } else {
-            super(data.id);
-        }
-        this._username = data.username;
-        this._discriminator = data.discriminator;
-        this._avatarHash = data.avatar;
-        this._bot = data.bot ?? false;
-        this._mention = `<@${this.id}>`;
-        this._status = data.status;
+        super(data.id); //WILL CHANGE
+        this.#username = data.username;
+        this.#discriminator = data.discriminator;
+        this.#avatarHash = data.avatar;
+        this.#bot = data.bot ?? false;
+        this.#mention = `<@${this.id}>`;
+        this.#status = data.status;
     }
 
     avatarURL(size = 1024){
-        const avatar = this._avatarHash.startsWith("a_") ? `${this._avatarHash}.gif` : `${this._avatarHash}.png`;
+        const avatar = this.#avatarHash.startsWith("a_") ? `${this.#avatarHash}.gif` : `${this.#avatarHash}.png`;
         return `https://cdn.discordapp.com/avatars/${this.id}/${avatar}?size=${size}`
     }
 
@@ -32,7 +28,7 @@ class User extends Base{
         if(data.user){
             this.updateUser(data.user);
             if(data.status !== undefined){
-                this._status = data.status;
+                this.#status = data.status;
             }
         } else {
             this.updateUser(data);
@@ -42,25 +38,25 @@ class User extends Base{
 
     private updateUser(data: any){
         if(data.username !== undefined) {
-            this._username = data.username;
+            this.#username = data.username;
         }
         if(data.discriminator !== undefined) {
-            this._discriminator = data.discriminator;
+            this.#discriminator = data.discriminator;
         }
         if(data.avatarHash !== undefined) {
-            this._avatarHash = data.avatarHash;
+            this.#avatarHash = data.avatarHash;
         }
     }
 
     toString(){
-        return this._mention;
+        return this.#mention;
     }
     
-    get username(){return this._username}
-    get discriminator(){return this._discriminator}
-    get bot(){return this._bot}
-    get mention(){return this._mention}
-    get status(){return this._status}
+    get username(){return this.#username}
+    get discriminator(){return this.#discriminator}
+    get bot(){return this.#bot}
+    get mention(){return this.#mention}
+    get status(){return this.#status}
 
 }
 
