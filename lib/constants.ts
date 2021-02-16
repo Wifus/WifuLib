@@ -45,8 +45,6 @@ class PAYLOADS {
     };
 }
 
-const GATEWAY = (v = 8): string => `wss://gateway.discord.gg/?v=${v}&encoding=json`;
-
 const REST_API = (v = 8): string => `https://discord.com/api/v${v}`;
 
 class ENDPOINTS {
@@ -125,7 +123,6 @@ enum INTENTS {
 export {
     OPCODES,
     PAYLOADS,
-    GATEWAY,
     ENDPOINTS,
     INTENTS
 }
