@@ -1,12 +1,15 @@
-abstract class Base{
+abstract class Base<U>{
 
-    #id: any;
+    #id: string;
+    #msSinceDiscordEpoch: number;
     #createdAt: Date;
     #createdAtFormatted: string;
 
-    constructor(id: any){
+    constructor(id: string){
         this.#id = id;
-        this.#createdAt = new Date(Math.floor(id/4194304) + 1420070400000);
+        //@ts-ignore Bleh, js does not like converting large numbers into strings
+        this.#msSinceDiscordEpoch = Math.floor(id/4194304);
+        this.#createdAt = new Date(this.#msSinceDiscordEpoch + 1420070400000);
         this.#createdAtFormatted = this.formatDate(this.#createdAt);
     }
 
@@ -16,7 +19,7 @@ abstract class Base{
     }
 
     //Override
-    update(data: any){return this;}
+    abstract update(data: unknown): U;
 
     get id(){return this.#id}
     get createdAt(){return this.#createdAt}

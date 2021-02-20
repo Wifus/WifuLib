@@ -1,8 +1,5 @@
-interface ClientOptions {
-    token: string,
-}
-
-interface Gateway {
+//deno-lint-ignore-file camelcase
+export interface Gateway {
     url: string,
     shards: number,
     session_start_limit: {
@@ -12,5 +9,3 @@ interface Gateway {
         max_concurrency: number
     }
 }
-
-export type { ClientOptions, Gateway }

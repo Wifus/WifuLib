@@ -2,7 +2,7 @@ import { ENDPOINTS } from "../constants.ts";
 
 class RestAPI{
 
-    #headers: any;
+    #headers: {"Content-Type": string, "Authorization": string};
 
     constructor(token: string) {
         this.#headers = {"Content-Type": 'application/json', "Authorization": `Bot ${token}`};
@@ -33,32 +33,32 @@ class RestAPI{
         return await this.fetch(ENDPOINTS.GET_USER(id));
     }
 
-    async createInteractionResponse(interaction: any, response: any){
-        return await this.fetch(ENDPOINTS.CREATE_INTERACTION_RESPONSE(interaction.id, interaction.token), JSON.stringify(response));
+    async createInteractionResponse(interactionId: string, interactionToken: string, response: unknown){
+        return await this.fetch(ENDPOINTS.CREATE_INTERACTION_RESPONSE(interactionId, interactionToken), JSON.stringify(response));
     }
 
-    async editInteractionResponse(bot_id: string, interaction_token: string, response: any){
-        return await this.fetch(ENDPOINTS.EDIT_INTERACTION_RESPONSE(bot_id, interaction_token), JSON.stringify(response));
+    async editInteractionResponse(botId: string, interactionToken: string, response: unknown){
+        return await this.fetch(ENDPOINTS.EDIT_INTERACTION_RESPONSE(botId, interactionToken), JSON.stringify(response));
     }
 
-    async deleteInteractionResponse(bot_id: string, interaction_token: string){
-        return await this.fetch(ENDPOINTS.DELETE_INTERACTION_RESPONSE(bot_id, interaction_token));
+    async deleteInteractionResponse(botId: string, interactionToken: string){
+        return await this.fetch(ENDPOINTS.DELETE_INTERACTION_RESPONSE(botId, interactionToken));
     }
 
-    async createMessage(channel_id: string, message: any){
-        return await this.fetch(ENDPOINTS.CREATE_MESSAGE(channel_id), JSON.stringify(message));
+    async createMessage(channelId: string, message: unknown){
+        return await this.fetch(ENDPOINTS.CREATE_MESSAGE(channelId), JSON.stringify(message));
     }
 
-    async editMessage(channel_id: string, message_id: string, message: any){
-        return await this.fetch(ENDPOINTS.EDIT_MESSAGE(channel_id, message_id), JSON.stringify(message));
+    async editMessage(channelId: string, messageId: string, message: unknown){
+        return await this.fetch(ENDPOINTS.EDIT_MESSAGE(channelId, messageId), JSON.stringify(message));
     }
 
-    async deleteMessage(channel_id: string, message_id: string){
-        return await this.fetch(ENDPOINTS.DELETE_MESSAGE(channel_id, message_id));
+    async deleteMessage(channelId: string, messageId: string){
+        return await this.fetch(ENDPOINTS.DELETE_MESSAGE(channelId, messageId));
     }
 
-    async editMember(guild_id: string, id: string, data: any){
-        return await this.fetch(ENDPOINTS.MODIFY_GUILD_MEMBER(guild_id, id), JSON.stringify(data));
+    async editMember(guildId: string, id: string, data: unknown){
+        return await this.fetch(ENDPOINTS.MODIFY_GUILD_MEMBER(guildId, id), JSON.stringify(data));
     }
 
 }

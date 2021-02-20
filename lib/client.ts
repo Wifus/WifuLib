@@ -1,4 +1,7 @@
-import { ClientOptions, Gateway } from "./interfaces.ts";
+import { ClientOptions } from "./interfaces/util.ts";
+import { Gateway } from "./interfaces/payloads.ts"
+import { Events } from "./interfaces/util.ts";
+
 import { DISCORD_API_VERSION } from "./constants.ts";
 
 import { RestAPI } from "./utils/RestAPI.ts";
@@ -12,7 +15,7 @@ class Client extends RestAPI{
     #identifyInterval: number; //In ms
 
     #shards: ShardManager;
-    #events: Map<string, Function>;
+    #events: Map<Events, (data?: unknown) => void>;
 
     constructor(options: ClientOptions){
         super(options.token);
@@ -20,7 +23,6 @@ class Client extends RestAPI{
         this.#wsURL = "";
         this.#numShards = 1;
         this.#identifyInterval = 5000;
-
 
         this.#shards = new ShardManager(this);
         this.#events = new Map();
@@ -37,11 +39,11 @@ class Client extends RestAPI{
         this.#shards.start();
     }
 
-    on(event: string, callback: Function){
+    on(event: Events, callback: (data?: unknown) => void){
         this.#events.set(event, callback);
     }
 
-    emit(event: string, data?: any){
+    emit(event: Events, data?: unknown){
         const func = this.#events.get(event);
         if(func) func(data);
     }

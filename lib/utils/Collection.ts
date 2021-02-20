@@ -1,21 +1,22 @@
+//deno-lint-ignore-file no-explicit-any
 import { Base } from "./Base.ts";
 
-class Collection<Object extends Base> extends Map{
+class Collection<V extends Base<V>> extends Map{
     
-    #baseClass: new (arg0?: any, arg1?: any) => Object;
+    #baseClass: new (...args: unknown[]) => V;
     #primaryKey: string;
 
-    constructor(baseClass: new (arg0?: any, arg1?: any) => Object, primaryKey = "id"){
+    constructor(baseClass: new (arg0?: unknown, arg1?: unknown) => V, primaryKey = "id"){
         super();
         this.#baseClass = baseClass;
         this.#primaryKey = primaryKey;
     }
 
-    get(key: any): Object{
+    get(key: any): V{
         return super.get(key);
     }
 
-    add(object: any): Object{
+    add(object: any): V{
         if(!(object instanceof this.#baseClass || object.constructor.name === this.#baseClass.name)){
             object = new this.#baseClass(object);
         }
@@ -23,7 +24,7 @@ class Collection<Object extends Base> extends Map{
         return object;
     }
 
-    update(object: any): Object{
+    update(object: any): V{
         const value = this.get(object[this.#primaryKey]);
         if(!value){
             return this.add(object);
@@ -31,7 +32,7 @@ class Collection<Object extends Base> extends Map{
         return value.update(object);
     }
 
-    remove(object: any): Object | null{
+    remove(object: any): V | null{
         const value = this.get(object[this.#primaryKey]);
         if(!value){
             return null;
