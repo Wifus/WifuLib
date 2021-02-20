@@ -1,3 +1,4 @@
+import { ShardOptions } from "../interfaces/util.ts";
 import * as EVENTS from "../interfaces/gateway/events.ts";
 import { OPCODES, PAYLOADS } from "../constants.ts";
 import type { Client } from "../client.ts";
@@ -7,16 +8,18 @@ class WebSocketManager extends WebSocket {
     #id: number;
     #client: Client;
     #token: string;
+    #numShards: number
     #sequenceNumber: number;
     #sessionId: string;
     #lastHeartbeatACK: boolean;
     #pulse: number;
 
-    constructor(id: number, client: Client) {
-        super(client.wsURL);
-        this.#id = id;
+    constructor(options: ShardOptions, client: Client) {
+        super(options.wsUrl);
+        this.#id = options.id;
         this.#client = client;
         this.#token = client.token;
+        this.#numShards = options.numShards;
         this.#sequenceNumber = 0;
         this.#sessionId = "";
         this.#lastHeartbeatACK = false;
@@ -87,7 +90,7 @@ class WebSocketManager extends WebSocket {
     }
 
     private identify() {
-        this.send(PAYLOADS.IDENTIFY(this.#token, 771, this.#id, this.#client.numShards));
+        this.send(PAYLOADS.IDENTIFY(this.#token, 771, this.#id, this.#numShards));
     }
 
     private resume() {

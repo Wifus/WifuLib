@@ -13,7 +13,6 @@ abstract class Base<U>{
         this.#createdAtFormatted = this.formatDate(this.#createdAt);
     }
 
-    //Update this to be properly formatted
     formatDate(date: Date) {
         return date.toLocaleString().split(" GMT")[0];
     }

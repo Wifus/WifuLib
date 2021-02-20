@@ -1,26 +1,26 @@
+import { ShardManagerOptions, ShardOptions } from "../interfaces/util.ts";
 import { WebSocketManager } from "./Shard.ts";
 import type { Client } from "../client.ts";
 
+//Needs to manage shards that need to reconnect
+//Then make sure that reconnects are only attempted once per the identify interval
 class ShardManager extends Map {
 
     #client: Client;
-    #numShards: number;
-    #identifyInterval: number; //In ms
 
     constructor(client: Client) {
         super();
         this.#client = client;
-        this.#numShards = client.numShards;
-        this.#identifyInterval = client.identifyInterval;
     }
 
-    start() {
-        for (let i = 0; i < this.#numShards; i++) {
+    start(options: ShardManagerOptions) {
+        for (let i = 0; i < options.numShards; i++) {
             setTimeout(() => {
-                const shard = new WebSocketManager(i, this.#client);
+                const shardOptions: ShardOptions = { id: i, ...options };
+                const shard = new WebSocketManager(shardOptions, this.#client);
                 shard.connect();
                 this.set(i, shard);
-            }, i * this.#identifyInterval);
+            }, i * options.identifyInterval);
         }
     }
 
