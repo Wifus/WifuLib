@@ -2,8 +2,8 @@ export interface ClientOptions {
     token: string,
 }
 
-export type Events = 
-    "debug" | 
+export type Events =
+    "debug" |
     "shardDisconnect";
 
 export interface ShardDisconnect {

@@ -2,7 +2,7 @@ import * as EVENTS from "../interfaces/gateway/events.ts";
 import { OPCODES, PAYLOADS } from "../constants.ts";
 import type { Client } from "../client.ts";
 
-class WebSocketManager extends WebSocket{
+class WebSocketManager extends WebSocket {
 
     #id: number;
     #client: Client;
@@ -11,7 +11,7 @@ class WebSocketManager extends WebSocket{
     #sessionId: string;
     #lastHeartbeatACK: boolean;
     #pulse: number;
-    
+
     constructor(id: number, client: Client) {
         super(client.wsURL);
         this.#id = id;
@@ -23,25 +23,25 @@ class WebSocketManager extends WebSocket{
         this.#pulse = NaN;
     }
 
-    public connect(){
+    public connect() {
         this.#lastHeartbeatACK = true;
         this.onmessage = (payload: MessageEvent) => this.recieve(JSON.parse(payload.data));
         this.#client.emit(`debug`, `Shard ${this.#id} Connected`);
         //Do I need a "shardConnect" event?
     }
 
-    private disconect(reconnect: boolean){
+    private disconect(reconnect: boolean) {
         this.close();
         this.#client.emit(`debug`, `Shard ${this.#id} Disconnected`);
         // this.#client.emit("shardDisconnect", );
         //Emit some form of "shardDisconnect" event
     }
 
-    private recieve(payload: EVENTS.Payload){        
-        const {op, d, s} = payload;
+    private recieve(payload: EVENTS.Payload) {
+        const { op, d, s } = payload;
         this.#sequenceNumber = s ?? this.#sequenceNumber;
 
-        switch(op){
+        switch (op) {
             case OPCODES.DISPATCH:
                 console.log(payload.t);
                 // this.#client.events.handleDispatch(payload);
@@ -57,14 +57,15 @@ class WebSocketManager extends WebSocket{
                 this.#sessionId = "";
                 this.identify();
                 break;
-            case OPCODES.HELLO:{
+            case OPCODES.HELLO: {
                 const data = <EVENTS.Hello>d;
-                if(this.#pulse){clearInterval(this.#pulse);}
-                this.#pulse = setInterval(() => {this.heartbeat(true)}, data.heartbeat_interval);
+                if (this.#pulse) { clearInterval(this.#pulse); }
+                this.#pulse = setInterval(() => { this.heartbeat(true) }, data.heartbeat_interval);
 
-                if(this.#sessionId) this.resume();
+                if (this.#sessionId) this.resume();
                 else this.identify();
-                break;}
+                break;
+            }
             case OPCODES.HEARTBEAT_ACKNOWLEDGEMENT:
                 this.#lastHeartbeatACK = true;
                 break;
@@ -75,9 +76,9 @@ class WebSocketManager extends WebSocket{
         }
     }
 
-    private heartbeat(pulse = false){
-        if(pulse) {
-            if(!this.#lastHeartbeatACK){
+    private heartbeat(pulse = false) {
+        if (pulse) {
+            if (!this.#lastHeartbeatACK) {
                 this.disconect(true);
             }
             this.#lastHeartbeatACK = false;
@@ -85,15 +86,15 @@ class WebSocketManager extends WebSocket{
         this.send(PAYLOADS.HEARTBEAT(this.#sequenceNumber));
     }
 
-    private identify(){
+    private identify() {
         this.send(PAYLOADS.IDENTIFY(this.#token, 771, this.#id, this.#client.numShards));
     }
 
-    private resume(){
+    private resume() {
         this.send(PAYLOADS.RESUME(this.#token, this.#sessionId, this.#sequenceNumber));
     }
 
-    set session_id(sessionId: string){this.#sessionId = sessionId;}
+    set session_id(sessionId: string) { this.#sessionId = sessionId; }
 }
 
 export { WebSocketManager };
