@@ -9,3 +9,4 @@ export interface Payload {
 export interface Hello {
     heartbeat_interval: number
 }
+

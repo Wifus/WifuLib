@@ -1,4 +1,4 @@
-import { Gateway } from "./interfaces/payloads.ts"
+import { Gateway } from "./interfaces/objects.ts"
 import { Events, Handler, ShardManagerOptions, ClientOptions } from "./interfaces/util.ts";
 
 import { DISCORD_API_VERSION } from "./constants.ts";
