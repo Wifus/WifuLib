@@ -1,3 +1,4 @@
+//deno-lint-ignore-file no-explicit-any
 export interface ClientOptions {
     token: string,
 }
@@ -15,6 +16,8 @@ export interface ShardOptions extends ShardManagerOptions {
 export type Events =
     "debug" |
     "shardDisconnect";
+
+export type Handler = (data?: any) => void;
 
 export interface ShardDisconnect {
     reconnect: boolean

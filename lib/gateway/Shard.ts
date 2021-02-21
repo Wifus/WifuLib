@@ -1,5 +1,5 @@
 import { ShardOptions } from "../interfaces/util.ts";
-import * as EVENTS from "../interfaces/gateway/events.ts";
+import { Payload, Hello } from "../interfaces/gateway/events.ts";
 import { OPCODES, PAYLOADS } from "../constants.ts";
 import type { Client } from "../client.ts";
 
@@ -40,7 +40,7 @@ class WebSocketManager extends WebSocket {
         //Emit some form of "shardDisconnect" event
     }
 
-    private recieve(payload: EVENTS.Payload) {
+    private recieve(payload: Payload) {
         const { op, d, s } = payload;
         this.#sequenceNumber = s ?? this.#sequenceNumber;
 
@@ -61,7 +61,7 @@ class WebSocketManager extends WebSocket {
                 this.identify();
                 break;
             case OPCODES.HELLO: {
-                const data = <EVENTS.Hello>d;
+                const data = <Hello>d;
                 if (this.#pulse) { clearInterval(this.#pulse); }
                 this.#pulse = setInterval(() => { this.heartbeat(true) }, data.heartbeat_interval);
 

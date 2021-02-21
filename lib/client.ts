@@ -1,5 +1,5 @@
 import { Gateway } from "./interfaces/payloads.ts"
-import * as Util from "./interfaces/util.ts";
+import { Events, Handler, ShardManagerOptions, ClientOptions } from "./interfaces/util.ts";
 
 import { DISCORD_API_VERSION } from "./constants.ts";
 
@@ -10,9 +10,9 @@ class Client extends RestAPI {
 
     #token: string;
     #shards: ShardManager;
-    #events: Map<Util.Events, (data?: unknown) => void>;
+    #events: Map<Events, Handler>;
 
-    constructor(options: Util.ClientOptions) {
+    constructor(options: ClientOptions) {
         super(options.token);
         this.#token = options.token;
         this.#shards = new ShardManager(this);
@@ -23,7 +23,7 @@ class Client extends RestAPI {
 
     async login() {
         const gateway: Gateway = await this.getGateway();
-        const options: Util.ShardManagerOptions = {
+        const options: ShardManagerOptions = {
             numShards: gateway.shards,
             identifyInterval: gateway.session_start_limit.max_concurrency * 5000,
             wsUrl: `${gateway.url}/?v=${DISCORD_API_VERSION}&encoding=json`
@@ -31,11 +31,11 @@ class Client extends RestAPI {
         this.#shards.start(options);
     }
 
-    on(event: Util.Events, callback: (data?: unknown) => void) {
+    on(event: Events, callback: Handler) {
         this.#events.set(event, callback);
     }
 
-    emit(event: Util.Events, data?: unknown) {
+    emit(event: Events, data?: Handler) {
         const func = this.#events.get(event);
         if (func) func(data);
     }
