@@ -1,4 +1,4 @@
-import { ShardManagerOptions, ShardOptions } from "../interfaces/util.ts";
+import { ShardManagerOptions, ShardOptions } from "../interfaces/client.ts";
 import { WebSocketManager } from "./Shard.ts";
 import type { Client } from "../client.ts";
 

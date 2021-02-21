@@ -1,6 +1,8 @@
+import { snowflake } from "../interfaces/discord.ts";
+
 abstract class Base<U>{
 
-    #id: string;
+    #id: snowflake;
     #msSinceDiscordEpoch: number;
     #createdAt: Date;
     #createdAtFormatted: string;

@@ -1,5 +1,5 @@
-import { ShardOptions } from "../interfaces/util.ts";
-import { Payload, Hello } from "../interfaces/events.ts";
+import { ShardOptions } from "../interfaces/client.ts";
+import { Payload, Hello } from "../interfaces/discord.ts";
 import { OPCODES, PAYLOADS } from "../constants.ts";
 import type { Client } from "../client.ts";
 

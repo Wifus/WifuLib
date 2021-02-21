@@ -1,9 +1,7 @@
-import { Gateway } from "./interfaces/objects.ts"
-import { Events, Handler, ShardManagerOptions, ClientOptions } from "./interfaces/util.ts";
-
+import { DiscordGateway } from "./interfaces/discord.ts"
+import { Events, Handler, ShardManagerOptions, ClientOptions } from "./interfaces/client.ts";
 import { DISCORD_API_VERSION } from "./constants.ts";
-
-import { RestAPI } from "./utils/RestAPI.ts";
+import { RestAPI } from "./util/RestAPI.ts";
 import { ShardManager } from "./gateway/Shards.ts"
 
 class Client extends RestAPI {
@@ -22,7 +20,7 @@ class Client extends RestAPI {
     }
 
     async login() {
-        const gateway: Gateway = await this.getGateway();
+        const gateway: DiscordGateway = await this.getGateway();
         const options: ShardManagerOptions = {
             numShards: gateway.shards,
             identifyInterval: gateway.session_start_limit.max_concurrency * 5000,
@@ -35,7 +33,7 @@ class Client extends RestAPI {
         this.#events.set(event, callback);
     }
 
-    emit(event: Events, data?: Handler) {
+    emit(event: Events, data?: unknown) {
         const func = this.#events.get(event);
         if (func) func(data);
     }
