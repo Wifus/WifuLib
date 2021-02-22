@@ -13,6 +13,10 @@ class ShardManager extends Map {
         this.#client = client;
     }
 
+    get(id: number): WebSocketManager {
+        return super.get(id);
+    }
+
     start(options: ShardManagerOptions) {
         for (let i = 0; i < options.numShards; i++) {
             setTimeout(() => {

@@ -15,6 +15,12 @@ export interface Hello {
     heartbeat_interval: number
 }
 
+export interface Ready {
+    user: DiscordUser;
+    session_id: string;
+    shard: [shard_id: number, num_shards:number]
+}
+
 export interface DiscordGateway {
     url: string;
     shards: number;

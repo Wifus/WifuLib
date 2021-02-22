@@ -3,18 +3,21 @@ import { Events, Handler, ShardManagerOptions, ClientOptions } from "./interface
 import { DISCORD_API_VERSION } from "./constants.ts";
 import { RestAPI } from "./util/RestAPI.ts";
 import { ShardManager } from "./gateway/Shards.ts"
+import { EventHandler } from "./util/EventHandler.ts";
 
 class Client extends RestAPI {
 
     #token: string;
     #shards: ShardManager;
     #events: Map<Events, Handler>;
+    #shardEvents: EventHandler;
 
     constructor(options: ClientOptions) {
         super(options.token);
         this.#token = options.token;
         this.#shards = new ShardManager(this);
         this.#events = new Map();
+        this.#shardEvents = new EventHandler(this);
 
         this.login();
     }
@@ -40,6 +43,7 @@ class Client extends RestAPI {
 
     get token() { return this.#token }
     get shards() { return this.#shards }
+    get shardEvents() { return this.#shardEvents }
 
 }
 

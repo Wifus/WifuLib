@@ -46,8 +46,7 @@ class WebSocketManager extends WebSocket {
 
         switch (op) {
             case OPCODES.DISPATCH:
-                console.log(payload.t);
-                // this.#client.events.handleDispatch(payload);
+                this.#client.shardEvents.handleDispatch(payload);
                 break;
             case OPCODES.HEARTBEAT:
                 this.heartbeat();
@@ -97,7 +96,7 @@ class WebSocketManager extends WebSocket {
         this.send(PAYLOADS.RESUME(this.#token, this.#sessionId, this.#sequenceNumber));
     }
 
-    set session_id(sessionId: string) { this.#sessionId = sessionId; }
+    set sessionId(sessionId: string) { this.#sessionId = sessionId; }
 }
 
 export { WebSocketManager };
