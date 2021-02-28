@@ -1,0 +1,1 @@
+export * as Discord from "https://deno.land/x/discord_api_types@1/v8/gateway/mod.ts";

@@ -1,9 +1,11 @@
 import { DiscordGateway } from "./interfaces/discord.ts"
 import { Events, Handler, ShardManagerOptions, ClientOptions } from "./interfaces/client.ts";
-import { DISCORD_API_VERSION } from "./constants.ts";
-import { RestAPI } from "./util/RestAPI.ts";
-import { ShardManager } from "./gateway/Shards.ts"
-import { EventHandler } from "./util/EventHandler.ts";
+import { DISCORD_API_VERSION } from "./Constants.ts";
+import { RestAPI } from "./RestAPI.ts";
+import { ShardManager } from "./Gateway.ts"
+import { EventHandler } from "./EventHandler.ts";
+import { Collection } from "./Collection.ts";
+import { User, Guild } from "./Objects.ts";
 
 class Client extends RestAPI {
 
@@ -11,6 +13,9 @@ class Client extends RestAPI {
     #shards: ShardManager;
     #events: Map<Events, Handler>;
     #shardEvents: EventHandler;
+    botUser: User | null;
+    guilds: Collection<Guild, "id">;
+    users: Collection<User, "id">;
 
     constructor(options: ClientOptions) {
         super(options.token);
@@ -18,11 +23,14 @@ class Client extends RestAPI {
         this.#shards = new ShardManager(this);
         this.#events = new Map();
         this.#shardEvents = new EventHandler(this);
+        this.botUser = null;
+        this.users = new Collection(User, "id");
+        this.guilds = new Collection(Guild, "id");
 
         this.login();
     }
 
-    async login() {
+    private async login() {
         const gateway: DiscordGateway = await this.getGateway();
         const options: ShardManagerOptions = {
             numShards: gateway.shards,
