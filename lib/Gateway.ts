@@ -1,7 +1,7 @@
-import { ShardOptions } from "../interfaces/client.ts";
-import { Payload, Hello } from "../interfaces/discord.ts";
-import { OPCODES, PAYLOADS } from "../constants.ts";
-import type { Client } from "../client.ts";
+import { ShardManagerOptions, ShardOptions } from "./interfaces/client.ts";
+import { Payload, Hello } from "./interfaces/discord.ts";
+import { OPCODES, PAYLOADS } from "./Constants.ts";
+import type { Client } from "./Client.ts";
 
 class WebSocketManager extends WebSocket {
 
@@ -99,4 +99,32 @@ class WebSocketManager extends WebSocket {
     set sessionId(sessionId: string) { this.#sessionId = sessionId; }
 }
 
-export { WebSocketManager };
+//Needs to manage shards that need to reconnect
+//Then make sure that reconnects are only attempted once per the identify interval
+class ShardManager extends Map {
+
+    #client: Client;
+
+    constructor(client: Client) {
+        super();
+        this.#client = client;
+    }
+
+    get(id: number): WebSocketManager {
+        return super.get(id);
+    }
+
+    start(options: ShardManagerOptions) {
+        for (let i = 0; i < options.numShards; i++) {
+            setTimeout(() => {
+                const shardOptions: ShardOptions = { id: i, ...options };
+                const shard = new WebSocketManager(shardOptions, this.#client);
+                shard.connect();
+                this.set(i, shard);
+            }, i * options.identifyInterval);
+        }
+    }
+
+}
+
+export { ShardManager };

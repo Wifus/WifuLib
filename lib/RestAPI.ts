@@ -1,4 +1,4 @@
-import { ENDPOINTS } from "../constants.ts";
+import { ENDPOINTS } from "./Constants.ts";
 
 class RestAPI {
 

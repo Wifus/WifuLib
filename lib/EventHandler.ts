@@ -1,12 +1,14 @@
-import type { Client } from "../client.ts";
-import { Payload, Ready } from "../interfaces/discord.ts";
+import type { Client } from "./Client.ts";
+import { Payload, Ready, DiscordGuild } from "./interfaces/discord.ts";
+import { UserData } from "./interfaces/data.ts"
+import { User } from "./Objects.ts";
 
 class EventHandler {
 
-    private client: Client;
+    #client: Client;
 
     constructor(client: Client) {
-        this.client = client;
+        this.#client = client;
     }
 
     handleDispatch(payload: Payload) {
@@ -16,12 +18,16 @@ class EventHandler {
         switch (t) {
             case "READY": {
                 const data = <Ready>d;
-                // this.client.botUser = d.user;
+                this.#client.botUser = new User(<UserData>data.user);
                 const [id] = data.shard;
-                this.client.shards.get(id).sessionId = data.session_id;
+                this.#client.shards.get(id).sessionId = data.session_id;
                 break;
             }
-            case "GUILD_CREATE": break;
+            case "GUILD_CREATE": {
+                const data = <DiscordGuild>d;
+                this.#client.guilds.add(data)
+                break;
+            }
             case "GUILD_UPDATE": break;
             case "GUILD_DELETE": break;
             case "GUILD_ROLE_CREATE": break;
