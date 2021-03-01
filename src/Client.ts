@@ -15,6 +15,7 @@ class Client extends RestAPI {
     botUser: User | null;
     guilds: Collection<Guild, "id">;
     users: Collection<User, "id">;
+    #intents: Discord.GatewayIntentBits[];
 
     constructor(options: ClientOptions) {
         super(options.token);
@@ -25,6 +26,7 @@ class Client extends RestAPI {
         this.botUser = null;
         this.users = new Collection(User, "id");
         this.guilds = new Collection(Guild, "id");
+        this.#intents = options.intents;
 
         this.login();
     }
@@ -34,7 +36,8 @@ class Client extends RestAPI {
         const options: ShardManagerOptions = {
             numShards: gateway.shards,
             identifyInterval: gateway.session_start_limit.max_concurrency * 5000,
-            wsUrl: `${gateway.url}/?v=${Discord.APIVersion}&encoding=json`
+            wsUrl: `${gateway.url}/?v=${Discord.APIVersion}&encoding=json`,
+            intents: this.#intents.reduce((a, b) => a + b)
         }
         this.#shards.start(options);
     }

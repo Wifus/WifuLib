@@ -2,14 +2,18 @@
 /*
 *   Types for client paramaters
 */
+import { Discord } from "../deps.ts";
+
 export interface ClientOptions {
     token: string;
+    intents: Discord.GatewayIntentBits[];
 }
 
 export interface ShardManagerOptions {
     numShards: number;
     identifyInterval: number;
     wsUrl: string;
+    intents: number;
 }
 
 export interface ShardOptions extends ShardManagerOptions {

@@ -12,6 +12,7 @@ class WebSocketManager extends WebSocket {
     #sessionId: string;
     #lastHeartbeatACK: boolean;
     #pulse: number;
+    #intents: number;
 
     constructor(options: ShardOptions, client: Client) {
         super(options.wsUrl);
@@ -23,6 +24,7 @@ class WebSocketManager extends WebSocket {
         this.#sessionId = "";
         this.#lastHeartbeatACK = false;
         this.#pulse = NaN;
+        this.#intents = options.intents;
     }
 
     public connect() {
@@ -41,26 +43,27 @@ class WebSocketManager extends WebSocket {
 
     private recieve(payload: Discord.GatewayReceivePayload) {
         const { op, s } = payload;
+        const { GatewayOPCodes } = Discord;
         this.#sequenceNumber = s ?? this.#sequenceNumber;
 
         switch (op) {
-            case Discord.GatewayOPCodes.Dispatch: {
+            case GatewayOPCodes.Dispatch: {
                 payload = <Discord.GatewayDispatchPayload>payload;
                 this.#client.shardEvents.handleDispatch(payload);
                 break;
             }
-            case Discord.GatewayOPCodes.Heartbeat:
+            case GatewayOPCodes.Heartbeat:
                 this.heartbeat();
                 break;
-            case Discord.GatewayOPCodes.Reconnect:
+            case GatewayOPCodes.Reconnect:
                 this.disconect(true);
                 break;
-            case Discord.GatewayOPCodes.InvalidSession:
+            case GatewayOPCodes.InvalidSession:
                 this.#sequenceNumber = 0;
                 this.#sessionId = "";
                 this.identify();
                 break;
-            case Discord.GatewayOPCodes.Hello: {
+            case GatewayOPCodes.Hello: {
                 const { d } = <Discord.GatewayHello>payload;
                 if (this.#pulse) { clearInterval(this.#pulse); }
                 this.#pulse = setInterval(() => { this.heartbeat(true) }, d.heartbeat_interval);
@@ -69,7 +72,7 @@ class WebSocketManager extends WebSocket {
                 else this.identify();
                 break;
             }
-            case Discord.GatewayOPCodes.HeartbeatAck:
+            case GatewayOPCodes.HeartbeatAck:
                 this.#lastHeartbeatACK = true;
                 break;
             default:
@@ -98,7 +101,7 @@ class WebSocketManager extends WebSocket {
             op: Discord.GatewayOPCodes.Identify,
             d: {
                 token: this.#token,
-                intents: 771,   //Add a way to edit this
+                intents: this.#intents,
                 properties: {
                     $os: Deno.build.os,
                     $browser: "wifu_library",
