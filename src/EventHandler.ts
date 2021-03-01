@@ -27,7 +27,7 @@ class EventHandler {
                 const data = <Discord.GatewayGuildCreateDispatchData>d;
                 this.#client.guilds.add(new Guild(data));
                 for (const member of data.members!) {
-                    this.#client.users.add(new User(member.user!));
+                    this.#client.users.update(new User(member.user!));
                 }
                 for (const presence of data.presences!) {
                     this.#client.user(presence.user.id).update(presence);
