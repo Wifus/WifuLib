@@ -1,11 +1,10 @@
-import { DiscordGateway } from "./interfaces/discord.ts"
-import { Events, Handler, ShardManagerOptions, ClientOptions } from "./interfaces/client.ts";
-import { DISCORD_API_VERSION } from "./Constants.ts";
+import { Events, Handler, ShardManagerOptions, ClientOptions } from "./Types.ts";
 import { RestAPI } from "./RestAPI.ts";
 import { ShardManager } from "./Gateway.ts"
 import { EventHandler } from "./EventHandler.ts";
 import { Collection } from "./Collection.ts";
 import { User, Guild } from "./Objects.ts";
+import { Discord } from "../deps.ts";
 
 class Client extends RestAPI {
 
@@ -31,11 +30,11 @@ class Client extends RestAPI {
     }
 
     private async login() {
-        const gateway: DiscordGateway = await this.getGateway();
+        const gateway: Discord.RESTGetAPIGatewayBotResult = await this.getGateway();
         const options: ShardManagerOptions = {
             numShards: gateway.shards,
             identifyInterval: gateway.session_start_limit.max_concurrency * 5000,
-            wsUrl: `${gateway.url}/?v=${DISCORD_API_VERSION}&encoding=json`
+            wsUrl: `${gateway.url}/?v=${Discord.APIVersion}&encoding=json`
         }
         this.#shards.start(options);
     }
@@ -52,6 +51,9 @@ class Client extends RestAPI {
     get token() { return this.#token }
     get shards() { return this.#shards }
     get shardEvents() { return this.#shardEvents }
+    guild(id: Discord.Snowflake) { return this.guilds.get(id) }
+    user(id: Discord.Snowflake) { return this.users.get(id) }
+    shard(id: number) { return this.#shards.get(id) }
 
 }
 

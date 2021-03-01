@@ -1,7 +1,6 @@
-import { ShardManagerOptions, ShardOptions } from "./interfaces/client.ts";
-import { Payload, Hello } from "./interfaces/discord.ts";
-import { OPCODES, PAYLOADS } from "./Constants.ts";
-import type { Client } from "./Client.ts";
+import { ShardManagerOptions, ShardOptions } from "./Types.ts";
+import { Discord } from "../deps.ts";
+import { Client } from "./Client.ts";
 
 class WebSocketManager extends WebSocket {
 
@@ -40,35 +39,37 @@ class WebSocketManager extends WebSocket {
         //Emit some form of "shardDisconnect" event
     }
 
-    private recieve(payload: Payload) {
-        const { op, d, s } = payload;
+    private recieve(payload: Discord.GatewayReceivePayload) {
+        const { op, s } = payload;
         this.#sequenceNumber = s ?? this.#sequenceNumber;
 
         switch (op) {
-            case OPCODES.DISPATCH:
+            case Discord.GatewayOPCodes.Dispatch: {
+                payload = <Discord.GatewayDispatchPayload>payload;
                 this.#client.shardEvents.handleDispatch(payload);
                 break;
-            case OPCODES.HEARTBEAT:
+            }
+            case Discord.GatewayOPCodes.Heartbeat:
                 this.heartbeat();
                 break;
-            case OPCODES.RECONNECT:
+            case Discord.GatewayOPCodes.Reconnect:
                 this.disconect(true);
                 break;
-            case OPCODES.INVALID_SESSION:
+            case Discord.GatewayOPCodes.InvalidSession:
                 this.#sequenceNumber = 0;
                 this.#sessionId = "";
                 this.identify();
                 break;
-            case OPCODES.HELLO: {
-                const data = <Hello>d;
+            case Discord.GatewayOPCodes.Hello: {
+                const { d } = <Discord.GatewayHello>payload;
                 if (this.#pulse) { clearInterval(this.#pulse); }
-                this.#pulse = setInterval(() => { this.heartbeat(true) }, data.heartbeat_interval);
+                this.#pulse = setInterval(() => { this.heartbeat(true) }, d.heartbeat_interval);
 
                 if (this.#sessionId) this.resume();
                 else this.identify();
                 break;
             }
-            case OPCODES.HEARTBEAT_ACKNOWLEDGEMENT:
+            case Discord.GatewayOPCodes.HeartbeatAck:
                 this.#lastHeartbeatACK = true;
                 break;
             default:
@@ -85,15 +86,40 @@ class WebSocketManager extends WebSocket {
             }
             this.#lastHeartbeatACK = false;
         }
-        this.send(PAYLOADS.HEARTBEAT(this.#sequenceNumber));
+        const payload: Discord.GatewayHeartbeat = {
+            op: Discord.GatewayOPCodes.Heartbeat,
+            d: this.#sequenceNumber
+        }
+        this.send(JSON.stringify(payload));
     }
 
     private identify() {
-        this.send(PAYLOADS.IDENTIFY(this.#token, 771, this.#id, this.#numShards));
+        const payload: Discord.GatewayIdentify = {
+            op: Discord.GatewayOPCodes.Identify,
+            d: {
+                token: this.#token,
+                intents: 771,   //Add a way to edit this
+                properties: {
+                    $os: Deno.build.os,
+                    $browser: "wifu_library",
+                    $device: "wifu_library"
+                },
+                shard: [this.#id, this.#numShards],
+            }
+        }
+        this.send(JSON.stringify(payload));
     }
 
     private resume() {
-        this.send(PAYLOADS.RESUME(this.#token, this.#sessionId, this.#sequenceNumber));
+        const payload: Discord.GatewayResume = {
+            op: Discord.GatewayOPCodes.Resume,
+            d: {
+                token: this.#token,
+                session_id: this.#sessionId,
+                seq: this.#sequenceNumber
+            }
+        }
+        this.send(JSON.stringify(payload));
     }
 
     set sessionId(sessionId: string) { this.#sessionId = sessionId; }

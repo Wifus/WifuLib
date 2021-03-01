@@ -1,14 +1,18 @@
-import { MemberData, RoleData, GuildData } from "./interfaces/data.ts";
-import { snowflake, DiscordMember, DiscordPresenceUpdate } from "./interfaces/discord.ts";
+import { Discord } from "../deps.ts";
 import { Collection } from "./Collection.ts"
+type UserAndMemberUpdateData =
+    | Discord.APIUser
+    | Discord.GatewayPresenceUpdate
+    | Discord.APIGuildMember
+    | Discord.GatewayGuildMemberUpdateDispatchData;
 
 abstract class Base {
 
-    #id: snowflake;
+    #id: Discord.Snowflake;
     #createdAt: Date;
     #createdAtFormatted: string;
 
-    constructor(id: string) {
+    constructor(id: Discord.Snowflake) {
         this.#id = id;
         this.#createdAt = this.dateFromId(this.id);
         this.#createdAtFormatted = this.formatDate(this.#createdAt);
@@ -18,7 +22,7 @@ abstract class Base {
         return date.toLocaleString().split(" GMT")[0];
     }
 
-    private dateFromId(snowflake: snowflake){
+    private dateFromId(snowflake: Discord.Snowflake) {
         return new Date(Number((BigInt(snowflake) >> 22n) + 1420070400000n));
     }
 
@@ -37,27 +41,26 @@ class User extends Base {
     #mention: string;
     #status: string | undefined;
 
-    constructor(data: MemberData) {
+    constructor(data: Discord.APIUser) {
         super(data.id);
         this.#username = data.username;
         this.#discriminator = data.discriminator;
         this.#avatarHash = this.getAvatar(data.avatar);
         this.#bot = data.bot ?? false;
         this.#mention = `<@${this.id}>`;
-        this.#status = data.status;
     }
 
-    update(data: MemberData) {
-        if (data.username !== undefined) {
+    update(data: UserAndMemberUpdateData) {
+        if ("username" in data && data.username !== undefined) {
             this.#username = data.username;
         }
-        if (data.discriminator !== undefined) {
+        if ("discriminator" in data && data.discriminator !== undefined) {
             this.#discriminator = data.discriminator;
         }
-        if (data.avatar !== undefined) {
+        if ("avatar" in data && data.avatar !== undefined) {
             this.#avatarHash = this.getAvatar(data.avatar);
         }
-        if (data.status !== undefined) {
+        if ("status" in data && data.status !== undefined) {
             this.#status = data.status;
         }
     }
@@ -96,14 +99,14 @@ class Role extends Base {
     #color: number;
     #position: number;
 
-    constructor(data: RoleData) {
+    constructor(data: Discord.APIRole) {
         super(data.id);
         this.#name = data.name;
         this.#color = data.color;
         this.#position = data.position;
     }
 
-    update(data: RoleData) {
+    update(data: Discord.APIRole) {
         if (data.name !== undefined) {
             this.#name = data.name;
         }
@@ -125,82 +128,78 @@ class Role extends Base {
 
 }
 
-class Member extends User{
-    
-    #nick: string | undefined;
+class Member extends User {
+
+    #nick: string | undefined | null;
     #roles: Collection<Role, "id">;
     #joinedAt: Date;
     #joinedAtFormatted: string;
     #guildRoles: Collection<Role, "id">;
-    #color: number;
-    #hexColor: string;
+    #color: number | undefined;
+    #hexColor: string | undefined;
 
-    constructor(data: MemberData){
-        super(data);
+    constructor(data: Discord.APIGuildMember, guildRoles: Collection<Role, "id">) {
+        super(data.user!);
         this.#nick = data.nick;
         this.#roles = new Collection(Role, "id");
-        this.#joinedAt = new Date(data.joinedAt ?? 0);
-        this.#joinedAtFormatted  = this.formatDate(this.#joinedAt);
-        this.#guildRoles = data.guildRoles!;
-        this.#color = 0;
-        this.#hexColor = "";
+        this.#joinedAt = new Date(data.joined_at ?? 0);
+        this.#joinedAtFormatted = this.formatDate(this.#joinedAt);
+        this.#guildRoles = guildRoles;
 
-        if(data.roles){
+        if (data.roles) {
             this.updateRoles(data.roles);
         }
     }
 
-    update(data: MemberData){
+    update(data: UserAndMemberUpdateData) {
         super.update(data);
-        if(data.nick !== undefined) {
+        if ("nick" in data && data.nick !== undefined) {
             this.#nick = data.nick;
         }
-        if(data.guildRoles !== undefined) {
-            this.#guildRoles = data.guildRoles;
-        }
-        if(data.roles){
+        if ("roles" in data && data.roles !== undefined) {
             this.updateRoles(data.roles);
         }
     }
 
-    private updateRoles(roles: string[]){
+    updateRoles(roles: string[]) {
         this.#roles.clear();
         let orderedRoles: Role[] = [];
-        for(const roleID of roles){
+        for (const roleID of roles) {
             orderedRoles.push(this.#guildRoles.get(roleID));
         }
         orderedRoles = orderedRoles.sort((a, b) => {
             return b.position - a.position;
         });
-        for(const role of orderedRoles){
+        for (const role of orderedRoles) {
             this.#roles.add(role);
         }
         this.#color = orderedRoles[0]?.color;
         this.#hexColor = this.#color?.toString(16);
     }
 
-    toString(){
+    toString() {
         return this.mention;
     }
 
-    get nick(){return this.#nick}
-    get roles(){return this.#roles}
-    get joinedAt(){return this.#joinedAt}
-    get joinedAtFormatted(){return this.#joinedAtFormatted}
-    get color(){return this.#color}
-    get hexColor(){return this.#hexColor}
+    get nick() { return this.#nick }
+    get roles() { return this.#roles }
+    get joinedAt() { return this.#joinedAt }
+    get joinedAtFormatted() { return this.#joinedAtFormatted }
+    get color() { return this.#color }
+    get hexColor() { return this.#hexColor }
+    set guildRoles(guildRoles: Collection<Role, "id">) { this.#guildRoles = guildRoles }
 
 }
 
-class Guild extends Base{
+class Guild extends Base {
 
     #name: string;
     #roles: Collection<Role, "id">;
     #unavailable: boolean;
     #memberCount: number;
     #members: Collection<Member, "id">;
-    
-    constructor(data: GuildData){
+
+    constructor(data: Discord.APIGuild) {
         super(data.id);
         this.#name = data.name;
         this.#roles = new Collection(Role, "id");
@@ -208,80 +207,51 @@ class Guild extends Base{
         this.#memberCount = data.member_count!;
         this.#members = new Collection(Member, "id");
 
-        for(const role of data.roles){
+        for (const role of data.roles) {
             this.#roles.add(new Role(role));
         }
-        for(const member of data.members!){
-            this.addMember(member, true);
+        for (const member of data.members!) {
+            this.addMember(member);
         }
-        for(const presence of data.presences!){
-            const m = this.discordPresenceUpdateToMemberObject(presence);
-            this.#members.update(m);
+        for (const presence of data.presences!) {
+            this.updateMember(presence);
         }
     }
 
-    update(data: GuildData){
-        if(data.name !== undefined) {
+    update(data: Discord.APIGuild) {
+        if (data.name !== undefined) {
             this.#name = data.name;
         }
-        if(data.unavailable !== undefined) {
+        if (data.unavailable !== undefined) {
             this.#unavailable = data.unavailable;
         }
-        return this;
     }
 
-    addMember(member: DiscordMember, ignoreCount = false){
-        const m = this.discordMemberToMemberObject(member);
-        this.#members.add(m);
-        if(!ignoreCount) {this.#memberCount = this.#members.size;}
+    addMember(member: Discord.APIGuildMember) {
+        this.#members.add(new Member(member, this.#roles));
+        this.#memberCount = this.#members.size;
     }
 
-    updateMember(member: DiscordMember){
-        const m = this.discordMemberToMemberObject(member);
-        this.#members.update(m);
+    updateMember(member: UserAndMemberUpdateData) {
+        let id: Discord.Snowflake;
+        if ("id" in member) { id = member.id }
+        else { id = member.user!.id; }
+        this.member(id).update(member);
     }
 
-    removeMember(id: string){
-        const member = this.#members.get(id);
-        if(member){
-            this.#members.remove(member);
+    removeMember(id: Discord.Snowflake) {
+        if (this.#members.get(id)) {
+            this.#members.remove(id);
             this.#memberCount = this.#members.size;
         }
     }
 
-    private discordMemberToMemberObject(member: DiscordMember){
-        const m: MemberData = {
-            id: member.user.id,
-            username: member.user.username,
-            discriminator: member.user.discriminator,
-            avatar: member.user.avatar,
-            bot: member.user.bot,
-            guildRoles: this.#roles,
-            nick: member.nick,
-            roles: member.roles,
-            joinedAt: member.joined_at
-        }
-        return new Member(m);
-    }
-
-    private discordPresenceUpdateToMemberObject(presence: DiscordPresenceUpdate){
-        const m: MemberData = {
-            id: presence.user.id,
-            username: presence.user.username,
-            discriminator: presence.user.discriminator,
-            avatar: presence.user.avatar,
-            bot: presence.user.bot,
-            status: presence.status,
-            guildRoles: this.#roles,
-        }
-        return new Member(m);
-    }
-
-    get name(){return this.#name}
-    get roles(){return this.#roles}
-    get unavailable(){return this.#unavailable}
-    get memberCount(){return this.#memberCount}
-    get members(){return this.#members}
+    get name() { return this.#name }
+    get roles() { return this.#roles }
+    get unavailable() { return this.#unavailable }
+    get memberCount() { return this.#memberCount }
+    get members() { return this.#members }
+    member(id: string) { return this.#members.get(id) }
 
 }
 

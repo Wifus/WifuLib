@@ -24,10 +24,10 @@ class Collection<T extends { update(data: any): void }, K extends keyof T> exten
         else { value.update(object); }
     }
 
-    remove(object: T): void {
-        const value = this.get(object[this.#primaryKey]);
+    remove(key: any): void {
+        const value = this.get(key);
         if (!value) { return; }
-        else { this.delete(object[this.#primaryKey]); }
+        else { this.delete(key); }
         return;
     }
 
