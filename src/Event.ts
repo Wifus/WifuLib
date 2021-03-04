@@ -100,10 +100,11 @@ class EventHandler {
                 this.#client.user(data.user.id).update(data);
                 break;
             }
-            // case GatewayDispatchEvents.InteractionCreate: {
-
-            //     break;
-            // }
+            case GatewayDispatchEvents.InteractionCreate: {
+                const data = <Discord.GatewayInteractionCreateDispatchData>d;
+                this.#client.commandHandler.executeCheck(data);
+                break;
+            }
             default: break;
         }
     }
