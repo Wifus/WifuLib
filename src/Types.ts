@@ -3,6 +3,8 @@
 *   Types for client paramaters
 */
 import { Discord } from "../deps.ts";
+import type { Client } from "./Client.ts";
+import type { Member, Guild } from "./Objects.ts";
 
 export interface ClientOptions {
     token: string;
@@ -25,6 +27,15 @@ export type Events =
     "shardDisconnect";
 
 export type Handler = (data?: any) => void;
+
+export type CommandExecute = (p: p) => void;
+
+export interface p {
+    client: Client;
+    data: Discord.APIApplicationCommandInteractionData;
+    guild: Guild;
+    member: Member;
+}
 
 export interface ShardDisconnect {
     reconnect: boolean;

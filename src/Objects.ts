@@ -1,5 +1,6 @@
 import { Discord } from "../deps.ts";
 import { Collection } from "./Collection.ts"
+import { CommandExecute } from "./Types.ts";
 type UserAndMemberUpdateData =
     | Discord.APIUser
     | Discord.GatewayPresenceUpdate
@@ -95,7 +96,7 @@ class User extends Base {
 
 class Role extends Base {
 
-    #name: string
+    #name: string;
     #color: number;
     #position: number;
 
@@ -255,4 +256,30 @@ class Guild extends Base {
 
 }
 
-export { User, Role, Member, Guild }
+interface CommandOptions {
+    id: Discord.Snowflake;
+    cooldown: number;
+    syntax: Discord.RESTPostAPIApplicationCommandsJSONBody;
+    execute: CommandExecute;
+}
+
+class Command extends Base {
+
+    #cooldown: number;
+    #name: string;
+    #execute: CommandExecute;
+
+    constructor(args: CommandOptions) {
+        super(args.id);
+        this.#cooldown = args.cooldown;
+        this.#name = args.syntax.name;
+        this.#execute = args.execute;
+    }
+
+    get cooldown() { return this.#cooldown }
+    get name() { return this.#name }
+    get execute() { return this.#execute }
+
+}
+
+export { User, Role, Member, Guild, Command }

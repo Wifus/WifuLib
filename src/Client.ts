@@ -1,10 +1,11 @@
 import { Events, Handler, ShardManagerOptions, ClientOptions } from "./Types.ts";
-import { RestAPI } from "./RestAPI.ts";
+import { RestAPI } from "./Rest.ts";
 import { ShardManager } from "./Gateway.ts"
-import { EventHandler } from "./EventHandler.ts";
+import { EventHandler } from "./Event.ts";
 import { Collection } from "./Collection.ts";
-import { User, Guild } from "./Objects.ts";
+import { User, Guild, Command } from "./Objects.ts";
 import { Discord } from "../deps.ts";
+import { CommandHandler } from "./Command.ts";
 
 class Client extends RestAPI {
 
@@ -16,6 +17,8 @@ class Client extends RestAPI {
     guilds: Collection<Guild, "id">;
     users: Collection<User, "id">;
     #intents: Discord.GatewayIntentBits[];
+    commands: Map<Discord.Snowflake, Command>;
+    #commandHandler = new CommandHandler(this);
 
     constructor(options: ClientOptions) {
         super(options.token);
@@ -27,6 +30,8 @@ class Client extends RestAPI {
         this.users = new Collection(User, "id");
         this.guilds = new Collection(Guild, "id");
         this.#intents = options.intents;
+        this.commands = new Map();
+        this.#commandHandler = new CommandHandler(this);
 
         this.login();
     }
@@ -51,9 +56,14 @@ class Client extends RestAPI {
         if (func) func(data);
     }
 
+    addCommand(command: Command) {
+        this.commands.set(command.id, command);
+    }
+
     get token() { return this.#token }
     get shards() { return this.#shards }
     get shardEvents() { return this.#shardEvents }
+    get commandHandler() { return this.#commandHandler }
     guild(id: Discord.Snowflake) { return this.guilds.get(id) }
     user(id: Discord.Snowflake) { return this.users.get(id) }
     shard(id: number) { return this.#shards.get(id) }
