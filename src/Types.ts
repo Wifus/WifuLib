@@ -3,13 +3,14 @@
 *   Types for client paramaters
 */
 import { Discord } from "../deps.ts"
-import type { Client } from "./Client.ts"
-import type { Member, Guild, InteractionResponse } from "./Objects.ts"
-import { Reply } from "./Builders.ts"
+import type Client from "./Client.ts"
+import Guild from "./Objects/Guild.ts"
+import Member from "./Objects/Member.ts"
+import InteractionResponse from "./Objects/InteractionResponse.ts"
+import Reply from "./Builders/Reply.ts"
 
 export { Discord } from "../deps.ts"
-export type { Client } from "./Client.ts"
-
+export type { Client };
 
 export interface ClientOptions {
     token: string;

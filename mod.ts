@@ -1,9 +1,11 @@
 import { Discord } from "./deps.ts"
-const { GatewayIntentBits: Intents } = Discord
-export { Intents };
 import Client from "./src/Client.ts"
-export { Client }
-export { Command } from "./src/Objects.ts"
+import Command from "./src/Objects/Command.ts"
+import Reply from "./src/Builders/Reply.ts"
+import CommandSyntaxError from "./src/Errors/CommandSyntaxError.ts"
+
+
+const { GatewayIntentBits: Intents } = Discord
+
+export { Client, Command, Intents, Reply,CommandSyntaxError }
 export type { p } from "./src/Types.ts"
-export { Reply } from "./src/Builders.ts"
-export { CommandSyntaxError } from "./src/Errors.ts"
