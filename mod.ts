@@ -7,5 +7,5 @@ import CommandSyntaxError from "./src/Errors/CommandSyntaxError.ts"
 
 const { GatewayIntentBits: Intents } = Discord
 
-export { Client, Command, Intents, Reply,CommandSyntaxError }
+export { Client, Command, Intents, Reply, CommandSyntaxError }
 export type { p } from "./src/Types.ts"
