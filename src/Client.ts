@@ -7,7 +7,7 @@ import InteractionResponse from "./Objects/InteractionResponse.ts"
 import CommandHandler  from "./Util/Commands.ts";
 import EventHandler from "./Util/Events.ts"
 import ShardManager from "./Util/Gateway.ts"
-import { Reply } from "./Builders.ts"
+import Reply from "./Builders/Reply.ts"
 
 class Client {
 
