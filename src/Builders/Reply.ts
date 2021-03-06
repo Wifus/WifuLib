@@ -1,4 +1,5 @@
 import { Discord } from "../Types.ts"
+import Embed from "./Embed.ts"
 
 class Reply {
 
@@ -15,7 +16,7 @@ class Reply {
 
     ephemeral() { this.#ephemeral = !this.#ephemeral; return this; }
 
-    embed(embed: Discord.APIEmbed) { this.#embed = embed; return this; }
+    embed(embed: Embed) { this.#embed = embed.get(); return this; }
 
     content(message: string) { this.#message = message; return this; }
 

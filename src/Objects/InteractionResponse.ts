@@ -1,13 +1,14 @@
 import Base from "./Base.ts"
 import { Discord, Client } from "../Types.ts"
 import Reply from "../Builders/Reply.ts"
+import Embed from "../Builders/Embed.ts"
 
 class InteractionResponse extends Base {
 
-    #client: Client
+    #client: Client;
     #botId: Discord.Snowflake;
-    #token: string
-    #reply: Reply
+    #token: string;
+    #reply: Reply;
 
     constructor(interaction: Discord.APIInteraction, botId: Discord.Snowflake, client: Client, reply: Reply) {
         super(interaction.id);
@@ -25,7 +26,7 @@ class InteractionResponse extends Base {
 
     ephemeral() { this.#reply.ephemeral(); return this; }
 
-    embed(embed: Discord.APIEmbed) { this.#reply.embed(embed); return this; }
+    embed(embed: Embed) { this.#reply.embed(embed); return this; }
 
     content(message: string) { this.#reply.content(message); return this; }
 

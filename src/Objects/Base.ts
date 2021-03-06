@@ -2,9 +2,9 @@ import { Discord } from "../Types.ts"
 
 abstract class Base {
 
-    #id: Discord.Snowflake
-    #createdAt: Date
-    #createdAtFormatted: string
+    #id: Discord.Snowflake;
+    #createdAt: Date;
+    #createdAtFormatted: string;
 
     constructor(id: Discord.Snowflake) {
         this.#id = id;

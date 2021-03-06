@@ -4,7 +4,7 @@ import User from "./Objects/User.ts"
 import Guild from "./Objects/Guild.ts"
 import Command from "./Objects/Command.ts"
 import InteractionResponse from "./Objects/InteractionResponse.ts"
-import CommandHandler  from "./Util/Commands.ts";
+import CommandHandler  from "./Util/Commands.ts"
 import EventHandler from "./Util/Events.ts"
 import ShardManager from "./Util/Gateway.ts"
 import Reply from "./Builders/Reply.ts"
