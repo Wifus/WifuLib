@@ -37,4 +37,4 @@ class Collection<T extends { update(data: any): void }, K extends keyof T> exten
 
 }
 
-export { Collection }
+export default Collection

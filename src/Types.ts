@@ -2,9 +2,14 @@
 /*
 *   Types for client paramaters
 */
-import { Discord } from "../deps.ts";
-import type { Client } from "./Client.ts";
-import type { Member, Guild } from "./Objects.ts";
+import { Discord } from "../deps.ts"
+import type { Client } from "./Client.ts"
+import type { Member, Guild, InteractionResponse } from "./Objects.ts"
+import { Reply } from "./Builders.ts"
+
+export { Discord } from "../deps.ts"
+export type { Client } from "./Client.ts"
+
 
 export interface ClientOptions {
     token: string;
@@ -35,6 +40,9 @@ export interface p {
     data: Discord.APIApplicationCommandInteractionData;
     guild: Guild;
     member: Member;
+    reply: (reply: Reply) => Promise<InteractionResponse>;
+    send: (message: Discord.RESTPostAPIChannelMessageJSONBody) => void;
+
 }
 
 export interface ShardDisconnect {
@@ -42,3 +50,9 @@ export interface ShardDisconnect {
     sequenceNumber: number;
     sessionId: string;
 }
+
+export type UserAndMemberUpdateData =
+    | Discord.APIUser
+    | Discord.GatewayPresenceUpdate
+    | Discord.APIGuildMember
+    | Discord.GatewayGuildMemberUpdateDispatchData;

@@ -1,13 +1,15 @@
-import { Events, Handler, ShardManagerOptions, ClientOptions } from "./Types.ts";
-import { RestAPI } from "./Rest.ts";
-import { ShardManager } from "./Gateway.ts"
-import { EventHandler } from "./Event.ts";
-import { Collection } from "./Collection.ts";
-import { User, Guild, Command } from "./Objects.ts";
-import { Discord } from "../deps.ts";
-import { CommandHandler } from "./Command.ts";
+import { Events, Handler, ShardManagerOptions, ClientOptions, Discord } from "./Types.ts"
+import Collection from "./Objects/Collection.ts"
+import User from "./Objects/User.ts"
+import Guild from "./Objects/Guild.ts"
+import Command from "./Objects/Command.ts"
+import InteractionResponse from "./Objects/InteractionResponse.ts"
+import CommandHandler  from "./Util/Commands.ts";
+import EventHandler from "./Util/Events.ts"
+import ShardManager from "./Util/Gateway.ts"
+import { Reply } from "./Builders.ts"
 
-class Client extends RestAPI {
+class Client {
 
     #token: string;
     #shards: ShardManager;
@@ -19,9 +21,10 @@ class Client extends RestAPI {
     #intents: Discord.GatewayIntentBits[];
     commands: Map<Discord.Snowflake, Command>;
     #commandHandler = new CommandHandler(this);
+    #headers: { "Content-Type": string, "Authorization": string };
+    #urlBase: string;
 
     constructor(options: ClientOptions) {
-        super(options.token);
         this.#token = options.token;
         this.#shards = new ShardManager(this);
         this.#events = new Map();
@@ -32,6 +35,8 @@ class Client extends RestAPI {
         this.#intents = options.intents;
         this.commands = new Map();
         this.#commandHandler = new CommandHandler(this);
+        this.#headers = { "Content-Type": 'application/json', "Authorization": `Bot ${options.token}` };
+        this.#urlBase = `https://discord.com/api/v${Discord.APIVersion}`;
 
         this.login();
     }
@@ -68,6 +73,60 @@ class Client extends RestAPI {
     user(id: Discord.Snowflake) { return this.users.get(id) }
     shard(id: number) { return this.#shards.get(id) }
 
+    private async request(route: string, method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH", body?: string) {
+
+        const options = {
+            method: method,
+            body: body,
+            headers: this.#headers
+        }
+
+        const response = await fetch(`${this.#urlBase}${route}`, options);
+
+        try {
+            return await response.json();
+        } catch (e) {
+            return response;
+        }
+    }
+
+    async getGateway() {
+        return await this.request(Discord.Routes.gatewayBot());
+    }
+
+    async getUser(id: string) {
+        return await this.request(Discord.Routes.user(id));
+    }
+
+    async createInteractionResponse(interaction: Discord.APIInteraction, response: Reply): Promise<InteractionResponse> {
+        await this.request(Discord.Routes.interactionCallback(interaction.id, interaction.token), "POST", response.get());
+        return new InteractionResponse(interaction, this.botUser!.id, this, response);
+    }
+
+    async editInteractionResponse(botId: Discord.Snowflake, interactionToken: string, response: Reply) {
+        await this.request(Discord.Routes.webhookMessage(botId, interactionToken), "PATCH", response.getEdit());
+    }
+
+    async deleteInteractionResponse(botId: Discord.Snowflake, interactionToken: string) {
+        return await this.request(Discord.Routes.webhookMessage(botId, interactionToken), "DELETE");
+    }
+
+    async createMessage(channelId: Discord.Snowflake, message: Discord.RESTPostAPIChannelMessageJSONBody) {
+        return await this.request(Discord.Routes.channelMessages(channelId), "POST", JSON.stringify(message));
+    }
+
+    async editMessage(channelId: Discord.Snowflake, messageId: Discord.Snowflake, message: Discord.RESTPatchAPIChannelMessageJSONBody) {
+        return await this.request(Discord.Routes.channelMessage(channelId, messageId), "PATCH", JSON.stringify(message));
+    }
+
+    async deleteMessage(channelId: Discord.Snowflake, messageId: Discord.Snowflake) {
+        return await this.request(Discord.Routes.channelMessage(channelId, messageId), "DELETE");
+    }
+
+    async editMember(guildId: Discord.Snowflake, id: Discord.Snowflake, data: Discord.RESTPatchAPIGuildMemberJSONBody) {
+        return await this.request(Discord.Routes.guildMember(guildId, id), "PATCH", JSON.stringify(data));
+    }
+
 }
 
-export { Client };
+export default Client

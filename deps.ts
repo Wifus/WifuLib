@@ -1,1 +1,1 @@
-export * as Discord from "https://deno.land/x/discord_api_types@1/mod.ts";
+export * as Discord from "https://deno.land/x/discord_api_types@1/mod.ts"

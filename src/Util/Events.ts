@@ -1,6 +1,8 @@
-import type { Client } from "./Client.ts";
-import { Discord } from "../deps.ts";
-import { Guild, User, Role } from "./Objects.ts";
+import { Discord, Client } from "../Types.ts"
+import User from "../Objects/User.ts"
+import Guild from "../Objects/Guild.ts"
+import Role from "../Objects/Role.ts"
+
 
 class EventHandler {
 
@@ -111,4 +113,4 @@ class EventHandler {
 
 }
 
-export { EventHandler }
+export default EventHandler

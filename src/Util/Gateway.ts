@@ -1,6 +1,4 @@
-import { ShardManagerOptions, ShardOptions } from "./Types.ts";
-import { Discord } from "../deps.ts";
-import { Client } from "./Client.ts";
+import { Discord, Client, ShardOptions, ShardManagerOptions } from "../Types.ts"
 
 class WebSocketManager extends WebSocket {
 
@@ -156,4 +154,4 @@ class ShardManager extends Map {
 
 }
 
-export { ShardManager };
+export default ShardManager

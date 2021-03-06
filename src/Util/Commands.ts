@@ -1,6 +1,7 @@
-import type { Client } from "./Client.ts";
-import { Discord } from "../deps.ts";
-import { p } from "./Types.ts";
+import { Discord, Client, p } from "../Types.ts"
+import CommandSyntaxError from "../Errors/CommandSyntaxError.ts"
+import Reply from "../Builders/Reply.ts"
+import InteractionResponse from "../Objects/InteractionResponse.ts"
 
 class CommandHandler {
 
@@ -23,7 +24,13 @@ class CommandHandler {
         //Cooldown check
         // if(this.#client.interactionManager.onCooldown(command, user, params)) return;
 
-        await command.execute(params);
+        try {
+            await command.execute(params);
+        } catch (error) {
+            if(error instanceof CommandSyntaxError){
+                await this.#client.createInteractionResponse(interaction, new Reply(error.toString()).ephemeral());
+            }
+        }
     }
 
 }
@@ -31,7 +38,7 @@ class CommandHandler {
 //Manage the DM/GUILD interactions, eventually...
 function getParams(client: Client, interaction: Discord.GatewayInteractionCreateDispatchData): p {
     const { guild_id: guildId, channel_id: channelId, member: { user: { id } } } = interaction;
-
+    
     const guild = client.guilds.get(guildId);
     const { members } = guild;
 
@@ -39,8 +46,15 @@ function getParams(client: Client, interaction: Discord.GatewayInteractionCreate
         client: client,
         data: interaction.data,
         guild: guild,
-        member: members.get(id)
+        member: members.get(id),
+        reply: async (reply: Reply): Promise<InteractionResponse> => {
+			return await client.createInteractionResponse(interaction, reply);
+		},
+		send: async (message: Discord.RESTPostAPIChannelMessageJSONBody) => {
+            await client.createInteractionResponse(interaction, new Reply());
+			return await client.createMessage(channelId, message);
+		},
     }
 }
 
-export { CommandHandler }
+export default CommandHandler
