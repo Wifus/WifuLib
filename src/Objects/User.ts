@@ -39,8 +39,7 @@ class User extends Base {
             const mod5 = parseInt(this.#discriminator) % 5;
             return `https://cdn.discordapp.com/embed/avatars/${mod5}.png`
         }
-        const avatar = this.#avatarHash.startsWith("a_") ? `${this.#avatarHash}.gif` : `${this.#avatarHash}.png`;
-        return `https://cdn.discordapp.com/avatars/${this.id}/${avatar}?size=${size}`
+        return `https://cdn.discordapp.com/avatars/${this.id}/${this.#avatarHash}?size=${size}`
     }
 
     protected getAvatar(data: string | null) {
